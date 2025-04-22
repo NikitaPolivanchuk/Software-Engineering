@@ -1,61 +1,18 @@
-﻿namespace Composite;
+﻿using Composite.Image;
+
+namespace Composite;
 
 internal abstract class Program
 {
     public static void Main(string[] args)
     {
-        string[] headers = ["ID", "Name", "Age", "City"];
-        string[][] tableData =
-        [
-            ["1", "John", "28", "New York"],
-            ["2", "Mary", "34", "Los Angeles"],
-            ["3", "Jane", "23", "Chicago"],
-        ];
-        var table = CreateTable(headers, tableData);
-        table.ClassList.Add("table");
-        Console.WriteLine(table.OuterHtml);
-    }
+        var fileImage = new LightImage("images/photo.jpg", "image1");
+        var networkImage = new LightImage("http://example.com/photo.jpg", "image2");
+        
+        Console.WriteLine("File Image Rendered:");
+        Console.WriteLine(fileImage.Render());
 
-    private static LightNodeElement CreateTable(string[] headers, string[][] tableData)
-    {
-        var table = CreateElement("table");
-        table.AddChild(CreateHeader(headers));
-        foreach (var rowData in tableData)
-        {
-            table.AddChild(CreateRow(rowData));
-        }
-        return table;
-    }
-
-    private static LightNodeElement CreateHeader(string[] headers)
-    {
-        var row = CreateElement("tr");
-        foreach (var header in headers)
-        {
-            row.AddChild(CreateElement("th", header));
-        }
-        return row;
-    }
-
-    private static LightNodeElement CreateRow(string[] rowData)
-    {
-        var row = CreateElement("tr");
-        foreach (var data in rowData)
-        {
-            row.AddChild(CreateElement("td", data));
-        }
-        return row;
-    }
-
-    private static LightNodeElement CreateElement(string tagName, string text)
-    {
-        var element = CreateElement(tagName);
-        element.AddChild(new LightTextNode(text));
-        return element;
-    }
-    
-    private static LightNodeElement CreateElement(string tagName)
-    {
-        return new LightNodeElement(tagName, true, false);
+        Console.WriteLine("\nNetwork Image Rendered:");
+        Console.WriteLine(networkImage.Render());
     }
 }
