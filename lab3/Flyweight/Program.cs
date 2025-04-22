@@ -12,13 +12,17 @@ internal abstract class Program
     public static void Main(string[] args)
     {
         var memStart = GC.GetTotalMemory(true);
+        //1639456 - no sp
+        
         //1348392B - default
         //1467688B - no string pool
-        //var page = CreateBookD();
+        var page = CreateBookD();
+        
+        //1319184 - no sp
         
         //1322504B - default
         //1315976B - no string pool
-        var page = CreateBookL();
+        //var page = CreateBookL();
         
         var memEnd = GC.GetTotalMemory(true);
         
@@ -41,22 +45,25 @@ internal abstract class Program
         while (!reader.EndOfStream)
         {
             var line = reader.ReadLine();
-                
-            if (string.IsNullOrEmpty(line))
+            if (line == null)
             {
                 continue;
             }
-            if (line.StartsWith(' '))
+            if (line.Length < 1)
             {
-                book.AddChild(CreateElementD(new string("blockquote".ToCharArray()), line));
+                book.AddChild(CreateElementD("br"));
+            }
+            else if (line.StartsWith(' '))
+            {
+                book.AddChild(CreateElementD("blockquote", line));
             }
             else if (line.Length < 20)
             {
-                book.AddChild(CreateElementD(new string("h2".ToCharArray()), line));
+                book.AddChild(CreateElementD("h2", line));
             }
             else
             {
-                book.AddChild(CreateElementD(new string("p".ToCharArray()), line));
+                book.AddChild(CreateElementD("p", line));
             }
         }
         return book;
@@ -92,17 +99,22 @@ internal abstract class Program
             {
                 continue;
             }
-            if (line.StartsWith(' '))
+
+            if (line.Length < 1)
             {
-                book.AddChild(CreateElementL(new string("blockquote".ToCharArray()), line));
+                book.AddChild(CreateElementL("br"));
+            }
+            else if (line.StartsWith(' '))
+            {
+                book.AddChild(CreateElementL("blockquote", line));
             }
             else if (line.Length <= 20)
             {
-                book.AddChild(CreateElementL(new string("h2".ToCharArray()), line));
+                book.AddChild(CreateElementL("h2", line));
             }
             else
             {
-                book.AddChild(CreateElementL(new string("p".ToCharArray()), line));
+                book.AddChild(CreateElementL("p", line));
             }
         }
         return book;
