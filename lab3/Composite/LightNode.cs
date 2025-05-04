@@ -1,3 +1,5 @@
+using Composite.Iterators;
+
 namespace Composite;
 
 public abstract class LightNode
@@ -18,6 +20,25 @@ public abstract class LightNode
     {
         child.Parent = this;
         children.Add(child);
+    }
+
+    public LightNode? Find(
+        Predicate<LightNode> predicate,
+        TraverseStrategy strategy = TraverseStrategy.BreadthFirst)
+    {
+        IDomIterator iterator = strategy == TraverseStrategy.BreadthFirst
+            ? new BreadthFirstIterator(this)
+            : new DepthFirstIterator(this);
+
+        while (iterator.MoveNext())
+        {
+            var current = iterator.Current;
+            if (predicate(current))
+            {
+                return current;
+            }
+        }
+        return null;
     }
  
     public abstract string Render();
