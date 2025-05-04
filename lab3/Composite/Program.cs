@@ -2,60 +2,26 @@
 
 internal abstract class Program
 {
-    public static void Main(string[] args)
-    {
-        string[] headers = ["ID", "Name", "Age", "City"];
-        string[][] tableData =
-        [
-            ["1", "John", "28", "New York"],
-            ["2", "Mary", "34", "Los Angeles"],
-            ["3", "Jane", "23", "Chicago"],
-        ];
-        var table = CreateTable(headers, tableData);
-        table.ClassList.Add("table");
-        Console.WriteLine(table.OuterHtml);
-    }
+   public static void Main(string[] args)
+   {
+      var root = new LightNodeElement("div", true, false);
+      var child = new LightNodeElement("span", true, false);
+      var text = new LightTextNode("Click me!");
 
-    private static LightNodeElement CreateTable(string[] headers, string[][] tableData)
-    {
-        var table = CreateElement("table");
-        table.AddChild(CreateHeader(headers));
-        foreach (var rowData in tableData)
-        {
-            table.AddChild(CreateRow(rowData));
-        }
-        return table;
-    }
+      child.AddChild(text);
+      root.AddChild(child);
 
-    private static LightNodeElement CreateHeader(string[] headers)
-    {
-        var row = CreateElement("tr");
-        foreach (var header in headers)
-        {
-            row.AddChild(CreateElement("th", header));
-        }
-        return row;
-    }
+      root.AddEventListener("click", sender =>
+      {
+         Console.WriteLine($"[Root {sender.TagName}] caught click event");
+      });
 
-    private static LightNodeElement CreateRow(string[] rowData)
-    {
-        var row = CreateElement("tr");
-        foreach (var data in rowData)
-        {
-            row.AddChild(CreateElement("td", data));
-        }
-        return row;
-    }
+      child.AddEventListener("click", sender =>
+      {
+         Console.WriteLine($"[Child {sender.TagName}] caught click event");
+      });
 
-    private static LightNodeElement CreateElement(string tagName, string text)
-    {
-        var element = CreateElement(tagName);
-        element.AddChild(new LightTextNode(text));
-        return element;
-    }
-    
-    private static LightNodeElement CreateElement(string tagName)
-    {
-        return new LightNodeElement(tagName, true, false);
-    }
+      Console.WriteLine("Dispatching click on text node’s parent (child):");
+      child.DispatchEvent("click");
+   }
 }

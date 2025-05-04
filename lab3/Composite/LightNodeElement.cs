@@ -1,8 +1,10 @@
 namespace Composite;
+using EventHandler = Action<LightNodeElement>;
 
 public class LightNodeElement : LightNode
 {
     private readonly List<LightNode> _children;
+    private readonly Dictionary<string, List<EventHandler>> _eventListeners;
     
     public string TagName { get; }
     public bool IsBlock { get; }
@@ -17,6 +19,7 @@ public class LightNodeElement : LightNode
         IsSelfClosing = isSelfClosing;
         ClassList = [];
         _children = [];
+        _eventListeners = [];
     }
 
     public void AddChild(LightNode child)
@@ -25,6 +28,7 @@ public class LightNodeElement : LightNode
         {
             throw new InvalidOperationException("Cannot add child to self closing element");
         }
+        child.Parent = this;
         _children.Add(child);
     }
 
@@ -41,5 +45,30 @@ public class LightNodeElement : LightNode
         return IsSelfClosing
             ? $"<{TagName}{classAttribute}> />"
             : $"<{TagName}{classAttribute}>{InnerHtml}</{TagName}>";
+    }
+    
+    public void AddEventListener(string eventType, EventHandler handler)
+    {
+        if (!_eventListeners.ContainsKey(eventType))
+        {
+            _eventListeners[eventType] = [];
+        }
+        _eventListeners[eventType].Add(handler);
+    }
+
+    public void DispatchEvent(string eventType)
+    {
+        var current = this;
+        while (current != null)
+        {
+            if (current._eventListeners.TryGetValue(eventType, out var handlers))
+            {
+                foreach (var handler in handlers)
+                {
+                    handler(current);
+                }
+            }
+            current = current.Parent as LightNodeElement;
+        }
     }
 }
