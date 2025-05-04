@@ -41,7 +41,7 @@ internal abstract class Program
         var book = CreateElementD("div");
         using var reader = new StreamReader(@"<path>");
         
-        book.AddChild(CreateElementD("h1", reader.ReadLine() ?? string.Empty));
+        book.AppendChild(CreateElementD("h1", reader.ReadLine() ?? string.Empty));
         while (!reader.EndOfStream)
         {
             var line = reader.ReadLine();
@@ -51,19 +51,19 @@ internal abstract class Program
             }
             if (line.Length < 1)
             {
-                book.AddChild(CreateElementD("br"));
+                book.AppendChild(CreateElementD("br"));
             }
             else if (line.StartsWith(' '))
             {
-                book.AddChild(CreateElementD("blockquote", line));
+                book.AppendChild(CreateElementD("blockquote", line));
             }
             else if (line.Length < 20)
             {
-                book.AddChild(CreateElementD("h2", line));
+                book.AppendChild(CreateElementD("h2", line));
             }
             else
             {
-                book.AddChild(CreateElementD("p", line));
+                book.AppendChild(CreateElementD("p", line));
             }
         }
         return book;
@@ -72,7 +72,7 @@ internal abstract class Program
     private static LightNodeElementD CreateElementD(string tagName, string text)
     {
         var element = CreateElementD(tagName);
-        element.AddChild(new LightTextNodeD(text));
+        element.AppendChild(new LightTextNodeD(text));
         return element;
     }
 

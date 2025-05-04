@@ -3,33 +3,30 @@ using EventHandler = Action<LightNodeElement>;
 
 public class LightNodeElement : LightNode
 {
-    private readonly List<LightNode> _children;
-    private readonly Dictionary<string, List<EventHandler>> _eventListeners;
+    protected readonly Dictionary<string, List<EventHandler>> EventListeners;
     
     public string TagName { get; }
     public bool IsBlock { get; }
     public bool IsSelfClosing { get; }
     public List<string> ClassList { get; }
-    public IReadOnlyList<LightNode> Children => _children;
     
-    public LightNodeElement(string tagName, bool isBlock, bool isSelfClosing)
+    public LightNodeElement(string tagName, bool isBlock, bool isSelfClosing) 
+        : base(tagName)
     {
         TagName = tagName;
         IsBlock = isBlock;
         IsSelfClosing = isSelfClosing;
         ClassList = [];
-        _children = [];
-        _eventListeners = [];
+        EventListeners = [];
     }
 
-    public void AddChild(LightNode child)
+    public override void AppendChild(LightNode child)
     {
         if (IsSelfClosing)
         {
-            throw new InvalidOperationException("Cannot add child to self closing element");
+            throw new NotSupportedException("Cannot add child to self closing element.");
         }
-        child.Parent = this;
-        _children.Add(child);
+        base.AppendChild(child);
     }
 
     public string InnerHtml => string.Join(string.Empty, Children.Select(node => node.Render()));
@@ -49,11 +46,11 @@ public class LightNodeElement : LightNode
     
     public void AddEventListener(string eventType, EventHandler handler)
     {
-        if (!_eventListeners.ContainsKey(eventType))
+        if (!EventListeners.ContainsKey(eventType))
         {
-            _eventListeners[eventType] = [];
+            EventListeners[eventType] = [];
         }
-        _eventListeners[eventType].Add(handler);
+        EventListeners[eventType].Add(handler);
     }
 
     public void DispatchEvent(string eventType)
@@ -61,7 +58,7 @@ public class LightNodeElement : LightNode
         var current = this;
         while (current != null)
         {
-            if (current._eventListeners.TryGetValue(eventType, out var handlers))
+            if (current.EventListeners.TryGetValue(eventType, out var handlers))
             {
                 foreach (var handler in handlers)
                 {
