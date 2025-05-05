@@ -3,6 +3,7 @@ using EventHandler = Action<LightNodeElement>;
 
 public class LightNodeElement : LightNode
 {
+    protected readonly Dictionary<string, string> Attributes;
     protected readonly Dictionary<string, List<EventHandler>> EventListeners;
     
     public string TagName { get; }
@@ -17,6 +18,7 @@ public class LightNodeElement : LightNode
         IsBlock = isBlock;
         IsSelfClosing = isSelfClosing;
         ClassList = [];
+        Attributes = [];
         EventListeners = [];
     }
 
@@ -35,13 +37,21 @@ public class LightNodeElement : LightNode
     
     public override string Render()
     {
-        var classAttribute = ClassList.Count > 0 
-            ? $" class=\"{string.Join(' ', ClassList)}\"" 
-            : string.Empty;
+        OnBeforeRender();
         
-        return IsSelfClosing
-            ? $"<{TagName}{classAttribute}> />"
-            : $"<{TagName}{classAttribute}>{InnerHtml}</{TagName}>";
+        if (ClassList.Count > 0)
+        {
+            Attributes["class"] = string.Join(' ', ClassList);
+        }
+
+        var attributes = string.Join(" ", Attributes.Select(kvp => $"{kvp.Key}=\"{kvp.Value}\""));
+        var attributesWithSpace = string.IsNullOrEmpty(attributes) ? "" : " " + attributes;
+        
+        var html = IsSelfClosing
+            ? $"<{TagName}{attributesWithSpace} />"
+            : $"<{TagName}{attributesWithSpace}>{InnerHtml}</{TagName}>";
+        
+        return OnAfterRender(html);
     }
     
     public void AddEventListener(string eventType, EventHandler handler)
@@ -68,4 +78,7 @@ public class LightNodeElement : LightNode
             current = current.Parent as LightNodeElement;
         }
     }
+
+    protected virtual void OnBeforeRender() { }
+    protected virtual string OnAfterRender(string html) => html;
 }
