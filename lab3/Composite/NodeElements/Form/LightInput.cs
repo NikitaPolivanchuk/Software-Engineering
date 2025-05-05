@@ -1,22 +1,34 @@
 ﻿using System.Text;
+using Composite.NodeElements.Form.InputStates;
 
-namespace Composite.Form;
+namespace Composite.NodeElements.Form;
 
 public abstract class LightInput : LightNodeElement
 {
     public string Type { get; }
     public object? Value { get; set; }
     public bool Required { get; }
+    public string Placeholder { get; }
+    public InputState State { get; set; }
     
-    public LightInput(string type, bool required, object? value) 
+    public LightInput(string type, bool required, object? value, string placeholder) 
         : base("input", true, true)
     {
         Type = type;
         Required = required;
         Value = value;
+        Placeholder = placeholder;
         
         Attributes["type"] = type;
         Attributes["required"] = required ? "true" : "false";
+
+        if (!string.IsNullOrEmpty(placeholder))
+        {
+            Attributes["placeholder"] = placeholder;
+        }
+
+        State = new ActiveState(this);
+        State.Blur();
     }
 
     public abstract bool IsValid();
@@ -28,9 +40,9 @@ public abstract class LightInput : LightNodeElement
 
     public override void OnAfterRender(StringBuilder htmlBuilder)
     {
-        if (!IsValid())
-        {
-            htmlBuilder.Append(" <!-- Not valid -->");
-        }
+        htmlBuilder.Append(State.GetMessage());
     }
+    
+    public void Focus() => State.Focus();
+    public void Blur() => State.Blur();
 }

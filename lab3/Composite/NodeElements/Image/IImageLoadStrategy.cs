@@ -1,4 +1,4 @@
-namespace Composite.Image;
+namespace Composite.NodeElements.Image;
 
 public interface IImageLoadStrategy
 {

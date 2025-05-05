@@ -1,4 +1,4 @@
-﻿using Composite.Form;
+﻿using Composite.NodeElements.Form;
 
 namespace Composite;
 
@@ -7,12 +7,15 @@ internal abstract class Program
     public static void Main(string[] args)
     {
         var div = CreateElement("div");
-        div.AppendChild(new LightTextInput(true, "some text"));
+        
+        div.AppendChild(new LightTextInput(true, null, "Enter name"));
         div.AppendChild(new LightTextInput());
-        div.AppendChild(new LightNumberInput(true));
+        div.AppendChild(new LightNumberInput(placeholder: "Enter age"));
         
         var div2 = CreateElement("div");
-        div2.AppendChild(new LightTextInput());
+        var input = new LightTextInput(true);
+        input.Focus();
+        div2.AppendChild(input);
         div2.AppendChild(new LightTextNode("some text"));
         div.AppendChild(div2);
         
