@@ -1,3 +1,5 @@
+using Composite.Visitors;
+
 namespace Composite;
 
 public class LightTextNode : LightNode
@@ -14,9 +16,9 @@ public class LightTextNode : LightNode
     {
         throw new NotSupportedException($"{nameof(LightTextNode)} cannot have children.");
     }
-
-    public override string Render()
+    
+    public override void Accept(IDomVisitor visitor)
     {
-        return Text;
+        visitor.Visit(this);
     }
 }

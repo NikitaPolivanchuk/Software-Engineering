@@ -1,4 +1,5 @@
 using Composite.Iterators;
+using Composite.Visitors;
 
 namespace Composite;
 
@@ -59,8 +60,23 @@ public abstract class LightNode
         }
         return result;
     }
+    
+    public string Render()
+    {
+        var visitor = new RenderVisitor();
+        Accept(visitor);
+        return visitor.GetHtml();
+    }
+
+    public string Count()
+    {
+        var visitor = new CountVisitor();
+        Accept(visitor);
+        var (elementCount, textCount) = visitor.GetCount();
+        return $"Element nodes: {elementCount}\nText nodes: {textCount}";
+    }
  
-    public abstract string Render();
+    public abstract void Accept(IDomVisitor visitor);
 
     private IDomIterator _getDomIterator(TraverseStrategy strategy)
         => strategy switch

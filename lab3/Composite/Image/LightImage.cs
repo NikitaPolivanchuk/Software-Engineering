@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Composite.Image;
 
 public class LightImage : LightNodeElement
@@ -25,14 +27,16 @@ public class LightImage : LightNodeElement
         Alt = alt;
     }
 
-    public override string Render()
+
+    public override void OnBeforeRender()
     {
-        var classAttribute = ClassList.Count > 0
-            ? $" class=\"{string.Join(' ', ClassList)}\""
-            : string.Empty;
-        
+        Attributes["href"] = Href;
+        Attributes["alt"] = Alt;
+    }
+
+    public override void OnAfterRender(StringBuilder htmlBuilder)
+    {
         var content = _loadStrategy.Load(Href);
-        
-        return $"<img src=\"{_href}\" alt=\"{Alt}\"{classAttribute} /> <!-- {content} -->";
+        htmlBuilder.Append($" <!-- {content} -->");
     }
 }
