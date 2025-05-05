@@ -18,18 +18,19 @@ public abstract class LightNode
 
     public virtual void AppendChild(LightNode child)
     {
+        OnBeforeAppend(child);
+        
         child.Parent = this;
         children.Add(child);
+        
+        OnAfterAppend(child);
     }
 
     public LightNode? Find(
         Predicate<LightNode> predicate,
         TraverseStrategy strategy = TraverseStrategy.BreadthFirst)
     {
-        IDomIterator iterator = strategy == TraverseStrategy.BreadthFirst
-            ? new BreadthFirstIterator(this)
-            : new DepthFirstIterator(this);
-
+        var iterator = _getDomIterator(strategy);
         while (iterator.MoveNext())
         {
             var current = iterator.Current;
@@ -40,6 +41,35 @@ public abstract class LightNode
         }
         return null;
     }
+
+    public List<LightNode> FindAll(
+        Predicate<LightNode> predicate,
+        TraverseStrategy strategy = TraverseStrategy.BreadthFirst)
+    {
+        var result = new List<LightNode>();
+        
+        var iterator = _getDomIterator(strategy);
+        while (iterator.MoveNext())
+        {
+            var current = iterator.Current;
+            if (predicate(current))
+            {
+                result.Add(current);
+            }
+        }
+        return result;
+    }
  
     public abstract string Render();
+
+    private IDomIterator _getDomIterator(TraverseStrategy strategy)
+        => strategy switch
+        {
+            TraverseStrategy.BreadthFirst => new BreadthFirstIterator(this),
+            TraverseStrategy.DepthFirst => new DepthFirstIterator(this),
+            _ => throw new ArgumentOutOfRangeException(nameof(strategy), strategy, null)
+        };
+    
+    protected virtual void OnBeforeAppend(LightNode child) { }
+    protected virtual void OnAfterAppend(LightNode child) { }
 }
