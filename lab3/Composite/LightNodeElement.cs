@@ -1,9 +1,12 @@
+using System.Text;
+using Composite.Visitors;
+
 namespace Composite;
 using EventHandler = Action<LightNodeElement>;
 
 public class LightNodeElement : LightNode
 {
-    protected readonly Dictionary<string, string> Attributes;
+    public readonly Dictionary<string, string> Attributes;
     protected readonly Dictionary<string, List<EventHandler>> EventListeners;
     
     public string TagName { get; }
@@ -32,26 +35,12 @@ public class LightNodeElement : LightNode
     }
 
     public string InnerHtml => string.Join(string.Empty, Children.Select(node => node.Render()));
-
+    
     public string OuterHtml => Render();
     
-    public override string Render()
+    public override void Accept(IDomVisitor visitor)
     {
-        OnBeforeRender();
-        
-        if (ClassList.Count > 0)
-        {
-            Attributes["class"] = string.Join(' ', ClassList);
-        }
-
-        var attributes = string.Join(" ", Attributes.Select(kvp => $"{kvp.Key}=\"{kvp.Value}\""));
-        var attributesWithSpace = string.IsNullOrEmpty(attributes) ? "" : " " + attributes;
-        
-        var html = IsSelfClosing
-            ? $"<{TagName}{attributesWithSpace} />"
-            : $"<{TagName}{attributesWithSpace}>{InnerHtml}</{TagName}>";
-        
-        return OnAfterRender(html);
+        visitor.Visit(this);
     }
     
     public void AddEventListener(string eventType, EventHandler handler)
@@ -79,6 +68,6 @@ public class LightNodeElement : LightNode
         }
     }
 
-    protected virtual void OnBeforeRender() { }
-    protected virtual string OnAfterRender(string html) => html;
+    public virtual void OnBeforeRender() { }
+    public virtual void OnAfterRender(StringBuilder htmlBuilder) { }
 }

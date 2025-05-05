@@ -1,4 +1,6 @@
-﻿namespace Composite.Form;
+﻿using System.Text;
+
+namespace Composite.Form;
 
 public abstract class LightInput : LightNodeElement
 {
@@ -19,15 +21,16 @@ public abstract class LightInput : LightNodeElement
 
     public abstract bool IsValid();
 
-    protected override void OnBeforeRender()
+    public override void OnBeforeRender()
     {
         Attributes["value"] = Value?.ToString() ?? string.Empty;
     }
 
-    protected override string OnAfterRender(string html)
+    public override void OnAfterRender(StringBuilder htmlBuilder)
     {
-        return IsValid() 
-            ? html 
-            : string.Concat(html, "<!-- Not valid -->");
+        if (!IsValid())
+        {
+            htmlBuilder.Append(" <!-- Not valid -->");
+        }
     }
 }
