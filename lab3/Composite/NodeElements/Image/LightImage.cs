@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Composite.Image;
+namespace Composite.NodeElements.Image;
 
 public class LightImage : LightNodeElement
 {
