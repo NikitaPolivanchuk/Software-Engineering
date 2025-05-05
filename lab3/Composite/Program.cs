@@ -21,7 +21,16 @@ internal abstract class Program
         
 
         Console.WriteLine(div.Render());
-        Console.WriteLine(div.Count());
+        
+        div.Undo();
+        div.Undo();
+        
+        Console.WriteLine(div.Render());
+        
+        div.Redo();
+        div.Redo();
+        
+        Console.WriteLine(div.Render());
     }
 
     private static LightNodeElement CreateElement(string tagName)

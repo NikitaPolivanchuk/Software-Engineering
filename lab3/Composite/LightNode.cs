@@ -1,3 +1,4 @@
+using Composite.Commands;
 using Composite.Iterators;
 using Composite.Visitors;
 
@@ -5,24 +6,23 @@ namespace Composite;
 
 public abstract class LightNode
 {
-    protected List<LightNode> children;
+    private static readonly CommandManager CommandManager = new();
     
     public string Name { get; }
     public LightNode? Parent { get; set; }
-    public IReadOnlyList<LightNode> Children => children;
+    public List<LightNode> Children { get; }
 
     public LightNode(string name)
     {
         Name = name;
-        children = [];
+        Children = [];
     }
 
     public virtual void AppendChild(LightNode child)
     {
         OnBeforeAppend(child);
         
-        child.Parent = this;
-        children.Add(child);
+        CommandManager.Execute(new AppendChildCommand(this, child));
         
         OnAfterAppend(child);
     }
@@ -85,6 +85,9 @@ public abstract class LightNode
             TraverseStrategy.DepthFirst => new DepthFirstIterator(this),
             _ => throw new ArgumentOutOfRangeException(nameof(strategy), strategy, null)
         };
+    
+    public void Undo() => CommandManager.Undo();
+    public void Redo() => CommandManager.Redo();
     
     protected virtual void OnBeforeAppend(LightNode child) { }
     protected virtual void OnAfterAppend(LightNode child) { }
